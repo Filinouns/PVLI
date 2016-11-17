@@ -78,7 +78,7 @@ describe('Battle type', function () {
 
   });
 
-  xdescribe('Turn list', function () {
+  describe('Turn list', function () {
 
     it('includes all the characters sorted by initiative.', function (done) {
       var sortedByInitiative = ['Fasty', 'Tank', 'Wizz'];
@@ -93,7 +93,7 @@ describe('Battle type', function () {
 
   });
 
-  xdescribe('Start', function () {
+  describe('Start', function () {
 
     it('includes the characters who are going to fight by party.',
     function (done) {
@@ -110,7 +110,7 @@ describe('Battle type', function () {
 
   });
 
-  xdescribe('Turns', function () {
+  describe('Turns', function () {
 
     it('include relevant info.', function (done) {
       battle.on('turn', function (turn) {
@@ -123,7 +123,7 @@ describe('Battle type', function () {
       battle.start();
     });
 
-    it('ignore dead characters.', function (done) {
+    xit('ignore dead characters.', function (done) {
       fastEnemy.hp = 0;
       currentSetup.monsters.members.push(characters.fastEnemy);
       battle.setup(currentSetup);
@@ -140,7 +140,7 @@ describe('Battle type', function () {
 
   });
 
-  xdescribe('Parties in battle', function () {
+  describe('Parties in battle', function () {
 
     it('can contain repeated members, each will be assigned a different id.',
     function () {
@@ -153,7 +153,7 @@ describe('Battle type', function () {
 
   });
 
-  xdescribe('Battle actions', function () {
+  describe('Battle actions', function () {
 
     it('are 3: attack, defend and cast.', function () {
       battle.on('turn', function () {

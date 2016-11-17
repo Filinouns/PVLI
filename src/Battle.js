@@ -140,12 +140,19 @@ Battle.prototype._checkEndOfBattle = function () {
   return commonParty ? { winner: commonParty } : null;
 
   function isAlive(character) {
-    // Devuelve true si el personaje está vivo.
+    return !character.isDead();
   }
 
   function getCommonParty(characters) {
-    // Devuelve la party que todos los personajes tienen en común o null en caso
-    // de que no haya común.
+    var uParty = true;
+    var primeParty = characters[0].party;
+    var x = 1;
+    while(x<= characters.length && uParty){
+      if(characters[x].party !== primeParty) uParty = false;
+      x++;
+    }
+    if(uParty) return primeParty;
+    else return null;
   }
 };
 
@@ -163,8 +170,13 @@ Battle.prototype._onAction = function (action) {
     action: action,
     activeCharacterId: this._turns.activeCharacterId
   };
-  // Debe llamar al método para la acción correspondiente:
-  // defend -> _defend; attack -> _attack; cast -> _cast
+
+  if(action === 'attack')
+    this.emit(this._action, this.attack)
+  else if (action === 'defend')
+    this.emit(this._action, this._defend)
+  else if (action === 'cast')
+    this.emit(this._action, this._cast)
 };
 
 Battle.prototype._defend = function () {
@@ -176,20 +188,25 @@ Battle.prototype._defend = function () {
 };
 
 Battle.prototype._improveDefense = function (targetId) {
-  var states = this._states[targetId];
-  // Implementa la mejora de la defensa del personaje.
+  var states = this._states[targetId].defense;
+  if(states === undefined) {
+    states = this._charactersById[targetId].defense || 0;
+  }
+  var target = this._charactersById[targetId];
+  var improveDefense = Math.ceil(target.defense * 1.1);
+  target.defense = improveDefense;
+  return target.defense;
 };
 
 Battle.prototype._restoreDefense = function (targetId) {
-  // Restaura la defensa del personaje a cómo estaba antes de mejorarla.
-  // Puedes utilizar el atributo this._states[targetId] para llevar tracking
-  // de las defensas originales.
+  this._charactersById[targetId]._defense = this._states[targetId].defense;
 };
 
 Battle.prototype._attack = function () {
   var self = this;
   self._showTargets(function onTarget(targetId) {
-    // Implementa lo que pasa cuando se ha seleccionado el objetivo.
+    self._action.targetId = targetId;
+    self._action.effect = self._charactersById[self._action.activeCharacterId].weapon.effect;
     self._executeAction();
     self._restoreDefense(targetId);
   });
@@ -198,7 +215,17 @@ Battle.prototype._attack = function () {
 Battle.prototype._cast = function () {
   var self = this;
   self._showScrolls(function onScroll(scrollId, scroll) {
-    // Implementa lo que pasa cuando se ha seleccionado el hechizo.
+    var aux = self._charactersById[self._turns.activeCharacterId].party;
+    scroll = self._grimoires[aux][scrollId];
+    self._charactersById[self._turns.activeCharacterId].mp -= scroll.cost;
+    
+    self._showTargets(function onTarget(targetId){
+      self._action.targetId = targetId;
+      self._action.effect = scroll.effect
+      self._action.scrollName = scrollId;
+      self._executeAction();
+      self._restoreDefense(targetId);
+    });
   });
 };
 
@@ -221,15 +248,27 @@ Battle.prototype._informAction = function () {
 };
 
 Battle.prototype._showTargets = function (onSelection) {
-  // Toma ejemplo de la función ._showActions() para mostrar los identificadores
-  // de los objetivos.
-
+  var objetives = {};
+  for(var x in this._charactersById){
+    if(this._charactersById[x].hp >= 1){
+      objetives[x] = x;
+    }
+  }
+  this.options.current = objetives;
   this.options.current.on('chose', onSelection);
 };
 
 Battle.prototype._showScrolls = function (onSelection) {
-  // Toma ejemplo de la función anterior para mostrar los hechizos. Estudia
-  // bien qué parámetros se envían a los listener del evento chose.
+  var party = this._charactersById[this._action.activeCharacterId].party;
+  var scrolls = {};
+
+  for (var id in this._grimoires[party]){
+    if (this._charactersById[this._action.activeCharacterId].mp >= this._grimoires[party][id].cost)
+    {
+     scrolls[id] = this._grimoires[party][id];
+    }
+  }
+  this.options.current = scrolls;
   this.options.current.on('chose', onSelection);
 };
 

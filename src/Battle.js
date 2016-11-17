@@ -81,29 +81,21 @@ Battle.prototype._extractCharactersById = function (parties) {
   return listToMap(characters, useUniqueName);
 
   function assignParty(characters, party) {
-    // Cambia la party de todos los personajes a la pasada como parámetro.
-
-    /*for(var name in characters[name]){
-      characters[name] = party;
-    }
-    /*var x = 0;
-    for(var i in characters.party[i]) {
-      this.characters.party[x] = i;
-      x++;
-    }*/
-    //party = 'Fasty';
-    
-    characters.forEach(function() {
-      characters.party = party;
-      return characters;
+    characters.forEach(function(character){
+      character.party = party;
     });
   }
 
   function useUniqueName(character) {
-    // Genera nombres únicos de acuerdo a las reglas
-    // de generación de identificadores que encontrarás en
-    // la descripción de la práctica o en la especificación.
-
+    var name = character.name;
+    if(idCounters[name] === undefined){
+      idCounters[name] = 0;
+      idCounters[name]++;
+    }else{
+      idCounters[name]++;
+      name += ' ' + idCounters[name];
+    }
+    return name;
   }
 };
 

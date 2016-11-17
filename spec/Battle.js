@@ -123,7 +123,7 @@ describe('Battle type', function () {
       battle.start();
     });
 
-    xit('ignore dead characters.', function (done) {
+    it('ignore dead characters.', function (done) {
       fastEnemy.hp = 0;
       currentSetup.monsters.members.push(characters.fastEnemy);
       battle.setup(currentSetup);
@@ -167,7 +167,7 @@ describe('Battle type', function () {
       battle.start();
     });
 
-    xdescribe('Defend action', function () {
+    describe('Defend action', function () {
 
       it('informs of the result.', function (done) {
         var currentDefense = fastEnemy.defense;

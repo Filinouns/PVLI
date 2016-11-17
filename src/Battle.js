@@ -87,15 +87,15 @@ Battle.prototype._extractCharactersById = function (parties) {
   }
 
   function useUniqueName(character) {
-    var name = character.name;
-    if(idCounters[name] === undefined){
-      idCounters[name] = 0;
-      idCounters[name]++;
-    }else{
-      idCounters[name]++;
-      name += ' ' + idCounters[name];
+    if(idCounters[character.name] === undefined){
+      idCounters[character.name] = 0;
+      idCounters[character.name]++;
+    return character.name;
     }
-    return name;
+  else{
+      idCounters[character.name]++;
+      return character.name + ' ' + idCounters[character.name];
+    }
   }
 };
 

@@ -13,20 +13,26 @@ TurnList.prototype.reset = function (charactersById) {
 
 TurnList.prototype.next = function () {
 
-  this._sortByInitiative();
+  var firstTurn = this.turnNumber;
+  var characterDead = false;
+  this.turnNumber++;
 
-  for (var i in this._charactersById){
-    if(this._charactersById[i]._isDead)
-      this.list.splice(i, 1);
+  while(!characterDead){
+    firstTurn = firstTurn % this.list.length;
+    if(!this._charactersById[this.list[firstTurn]].isDead()) {
+      this.activeCharacterId = this.list[firstTurn];
+      characterDead = true;
+    }
+    firstTurn++;
   }
 
-  this.activeCharacterId = this.list[0];
-  this.party = this._charactersById[this.activeCharacterId].party;
+  var next = {
+    number: this.turnNumber,
+    party: this._charactersById[this.activeCharacterId].party,
+    activeCharacterId: this.activeCharacterId
+  };
 
-  ++this.turnNumber;
-  this.number = this.turnNumber;
-
-  return this;
+  return next;
 };
 
 TurnList.prototype._sortByInitiative = function () {
@@ -44,28 +50,10 @@ TurnList.prototype._sortByInitiative = function () {
     else return 0;
   });
 
-  for(var j in aux) {
-    array.push(aux[j].name);
-  }
-  return array; 
-
-  /*
-  return array.sort(function(a, b){
-    var First;
-    aux.sort (function (c, d){
-      if(c < d){
-        First = 1;
-        return -1;
-      } else if (c > d){
-        First = -1;
-        return 1;
-      } else{
-        First = 0;
-        return 0;
-      }
-    });
-    return First;
-  });*/
+  array = aux.map(function(character){
+    return character.name;
+  });
+  return array;
 };
 
 module.exports = TurnList;
